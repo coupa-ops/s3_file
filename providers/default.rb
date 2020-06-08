@@ -80,7 +80,9 @@ action :create do
 
       ::FileUtils.mv(decrypted_file.path, new_resource.path)
     else
-      ::FileUtils.mv(response.file.path, new_resource.path)
+      res_file = response.file
+      res_file.close unless res_file.closed?
+      ::FileUtils.mv(res_file.path, new_resource.path)
     end
   end
 
