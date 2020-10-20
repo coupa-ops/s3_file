@@ -88,8 +88,6 @@ action :create do
 
   f = file new_resource.path do
     action :create
-    owner new_resource.owner || ENV['user']
-    group new_resource.group || ENV['user']
     mode new_resource.mode || '0644'
   end
 
