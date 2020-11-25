@@ -88,6 +88,7 @@ module S3FileLib
 
   def self.do_request(method, url, bucket, path, aws_access_key_id, aws_secret_access_key, token, region)
     url = build_endpoint_url(bucket, region) if url.nil?
+    attempt = 0
 
     with_region_detect(region) do |real_region|
       client.reset_before_execution_procs
@@ -98,9 +99,22 @@ module S3FileLib
           SigV4.sign(request, params, real_region, aws_access_key_id, aws_secret_access_key, token)
         end
       end
-      client::Request.execute(:method => method, :url => "#{url}#{path}", :raw_response => true, timeout: 120)
+
+      begin
+        Chef::Log.info("Initiate #{path} download from #{url} ...")
+        client::Request.execute(:method => method, :url => "#{url}#{path}", :raw_response => true, timeout: 120)
+      rescue => e
+        error = e.respond_to?(:response) ? e.response : e
+        Chef::Log.error(error)
+        if (attempt+=1) < 5
+          sleep attempt
+          retry
+        end
+        raise e
+      end
     end
-  end
+
+    end
 
   def self.build_endpoint_url(bucket, region)
     endpoint = if region && region != "us-east-1"
