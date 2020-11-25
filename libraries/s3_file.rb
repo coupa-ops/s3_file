@@ -98,7 +98,19 @@ module S3FileLib
           SigV4.sign(request, params, real_region, aws_access_key_id, aws_secret_access_key, token)
         end
       end
+
+    attempt = 0
+    begin
+      Chef::Log.info("Initiate #{path} download from #{url} ...")
       client::Request.execute(:method => method, :url => "#{url}#{path}", :raw_response => true, timeout: 120)
+    rescue => e
+      error = e.respond_to?(:response) ? e.response : e
+      Chef::Log.error(error)
+      if (attempt+=1) < 5
+        sleep attempt
+        retry
+      end
+      raise e
     end
   end
 
