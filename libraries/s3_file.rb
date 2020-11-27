@@ -103,8 +103,7 @@ module S3FileLib
         Chef::Log.info("Initiate #{path} download from #{url} ...")
         client::Request.execute(:method => method, :url => "#{url}#{path}", :raw_response => true, timeout: 120)
       rescue => e
-        error = e.respond_to?(:response) ? e.response : e
-        Chef::Log.error(error)
+        Chef::Log.error("Class: #{e.class} \nMessage: #{e.message}")
         if (attempt+=1) < 5
           sleep attempt
           retry
