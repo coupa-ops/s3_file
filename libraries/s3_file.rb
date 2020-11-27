@@ -112,8 +112,7 @@ module S3FileLib
         raise e
       end
     end
-
-    end
+  end
 
   def self.build_endpoint_url(bucket, region)
     endpoint = if region && region != "us-east-1"
