@@ -98,6 +98,7 @@ module S3FileLib
           SigV4.sign(request, params, real_region, aws_access_key_id, aws_secret_access_key, token)
         end
       end
+    end
 
     attempt = 0
     begin
